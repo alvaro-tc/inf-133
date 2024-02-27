@@ -12,5 +12,5 @@ response= requests.request(
 )
 print(response.text)
 #Diferencia entre servicio REST y JSON es el metodo de consulta, y la forma de acceder al endPoint
-#SOAP PRotocolo
+#SOAP Protocolo
 #REST Patron de Arquitectura 
