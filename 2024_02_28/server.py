@@ -64,9 +64,7 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps(estudiantes_carrera).encode('utf-8'))
 
-            
 
-            
 
         elif self.path == '/carreras':
             carreras = list(set([estudiante['carrera'] for estudiante in estudiantes]))
@@ -92,7 +90,6 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
             self.send_response(201)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(estudiantes).encode('utf-8'))
         else:
             self.send_response(404)
             self.send_header('Content-type', 'application/json')
