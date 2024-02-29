@@ -102,7 +102,7 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         if self.path.startswith("/estudiantes"):
             content_lenght = int(self.headers['Content-Length'])
-            data = self.rfile.read(content_lenght)
+            post_data = self.rfile.read(content_lenght)
             data = json.loads(post_data.decode('utf-8'))
             id = data["id"]
             estudiante = next((estudiante for estudiante in estudiantes if estudiante["id"]==id),
