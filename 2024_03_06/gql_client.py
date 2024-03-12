@@ -1,28 +1,76 @@
 import requests
-
+url = 'http://localhost:8000/graphql'
 query = """
     {
-        estudiantes{
+        estudiantePorCarrera(carrera: "Arquitectura"){
             nombre
         }
-        estudiantes{
-            nombre
-            apellido
+
+    }
+"""
+query_crear = """
+mutation {
+        crearEstudiante(nombre: "Angel", apellido: "Gomez", carrera: "Arquitectura") {
+            estudiante {
+                id
+                nombre
+                apellido
+                carrera
+            }
         }
     }
 """
-query2= """
+query_crear2 = """
+mutation {
+        crearEstudiante(nombre: "Michael", apellido: "Torrez", carrera: "Arquitectura") {
+            estudiante {
+                id
+                nombre
+                apellido
+                carrera
+            }
+        }
+    }
+"""
+query_eliminar= """
+mutation {
+        deleteEstudiante(id : 3) {
+            estudiante {
+                id
+                nombre
+                apellido
+                carrera
+            }
+        }
+    }
+"""
+query_poner= """
+mutation {
+        putEstudiante(id : 2, nombre: "Jose", apellido: "Lopez", carrera: "Antropologia") {
+            estudiante {
+                id
+                nombre
+                apellido
+                carrera
+            }
+        }
+    }
+"""
+query_get= """
     {
         estudiantes{
+            id
             nombre
-            apellido
+            carrera
         }
     }
 """
-
-url='http://localhost:8000/graphql'
-
-response=requests.post(url,json={'query': query})
-response2=requests.post(url,json={'query': query2})
+response_mutation = requests.post(url, json={'query': query_crear})
+#print(response_mutation.text)
+response_mutation2 = requests.post(url, json={'query': query_crear2})
+#print(response_mutation2.text)
+response_mutation3 = requests.post(url, json={'query': query_poner})
+#print(response_mutation3.text)
+response = requests.post(url, json={'query': query_get})
 print(response.text)
-#print(response2.text)
+
