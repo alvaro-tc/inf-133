@@ -28,6 +28,19 @@ class PlayerHandler(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
+    def do_POST(self):
+        if self.path == "/player/damage":
+            content_length = int(self.headers["Content-Length"])
+            post_data = self.rfile.read(content_length)
+            damage = json.loads(post_data.decode("utf-8"))["damage"]
+            player.take_damage(damage)
+            self.send_response(200)
+            self.end_headers()
+            player_data = json.dumps(player.to_dict())
+            self.wfile.write(player_data.encode("utf-8"))
+        else:
+            self.send_response(404)
+            self.end_headers()
 
 
 def main():
