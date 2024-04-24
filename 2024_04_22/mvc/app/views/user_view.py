@@ -9,7 +9,14 @@ def usuarios(users):
     return render_template("usuarios.html", users=users)
 
 
+
 # La función `registro` renderiza el
 # template `registro.html`
 def registro():
     return render_template("registro.html")
+
+def actualizar(user):
+    return render_template("actualizar.html", title="Actualizar usuario", user=user)
+
+def eliminar(users):
+    return render_template("usuarios.html", users=users)
