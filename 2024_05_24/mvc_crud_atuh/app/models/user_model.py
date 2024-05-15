@@ -52,7 +52,12 @@ class User(UserMixin, db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
+
     # Obtiene un usuario por su nombre de usuario
     @staticmethod
     def get_user_by_username(username):
         return User.query.filter_by(username=username).first()
+
+    def has_role(self, role):
+        return self.role == role

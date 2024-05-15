@@ -1,6 +1,10 @@
 from flask import Blueprint, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
+
+
+# Importamos el decorador de roles
+from utils.decorators import role_required
 
 # Importamos la vista de usuarios
 from views import user_view
@@ -17,7 +21,10 @@ user_bp = Blueprint("user", __name__)
 # la página de inicio de sesión
 @user_bp.route("/")
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for("user.profile", id=current_user.id))
     return redirect(url_for("user.login"))
+
 
 
 @user_bp.route("/users")
@@ -29,10 +36,10 @@ def list_users():
     return user_view.usuarios(users)
 
 
+
 # Definimos la ruta "/users" asociada a la función registro
 # que nos devuelve la vista de registro
 @user_bp.route("/users/create", methods=["GET", "POST"])
-@login_required
 def create_user():
     if request.method == "POST":
         # Obtenemos los datos del formulario
@@ -41,13 +48,12 @@ def create_user():
         username = request.form["username"]
         password = request.form["password"]
         role = request.form["role"]
-        
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash("El nombre de usuario ya está en uso", "error")
             return redirect(url_for("user.create_user"))
         # Creamos un nuevo usuario
-        user = User(first_name, last_name, username, password, role)
+        user = User(first_name, last_name, username, password, role=role)
         user.set_password(password)
         # Guardamos el usuario
         user.save()
@@ -57,12 +63,16 @@ def create_user():
     return user_view.registro()
 
 
+
+
+
 # Actualizamos la información del usuario por su id
 # Ya estamos en la vista de actualizar
 # por lo que obtenemos los datos del formulario
 # y actualizamos la información del usuario
 @user_bp.route("/users/<int:id>/update", methods=["GET", "POST"])
 @login_required
+@role_required("admin")
 def update_user(id):
     user = User.get_by_id(id)
     if not user:
@@ -71,11 +81,9 @@ def update_user(id):
         # Obtenemos los datos del formulario
         first_name = request.form["first_name"]
         last_name = request.form["last_name"]
-        role =request.form["role"]
         # Actualizamos los datos del usuario
         user.first_name = first_name
         user.last_name = last_name
-        user.role = role
         # Guardamos los cambios
         user.update()
         return redirect(url_for("user.list_users"))
@@ -84,13 +92,13 @@ def update_user(id):
 
 @user_bp.route("/users/<int:id>/delete")
 @login_required
+@role_required("admin")
 def delete_user(id):
     user = User.get_by_id(id)
     if not user:
         return "Usuario no encontrado", 404
     user.delete()
     return redirect(url_for("user.list_users"))
-
 
 # Ruta para el inicio de sesión
 @user_bp.route("/login", methods=["GET", "POST"])
@@ -102,7 +110,12 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             flash("Inicio de sesión exitoso", "success")
-            return redirect(url_for("user.list_users"))
+            if user.has_role("admin"):
+                # Redirigir a su perfil si el usuario es de rol "admin"
+                return redirect(url_for("user.list_users"))
+            else:
+                # Redirigir a la lista de usuarios para otros roles
+                return redirect(url_for("user.profile", id=user.id))
         else:
             flash("Nombre de usuario o contraseña incorrectos", "error")
     return user_view.login()
@@ -115,3 +128,10 @@ def logout():
     logout_user()
     flash("Sesión cerrada exitosamente", "success")
     return redirect(url_for("user.login"))
+
+
+@user_bp.route("/profile/<int:id>")
+@login_required
+def profile(id):
+    user = User.get_by_id(id)
+    return user_view.perfil(user)
