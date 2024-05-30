@@ -13,14 +13,16 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     roles = db.Column(db.String(50), nullable=False)
     
-    def __init__(self, username, password, roles=["user"]):
+    def __init__(self, first_name, last_name, username, password, roles=["user"]):
+        self.first_name = first_name
+        self.last_name = last_name
         self.username = username
         self.roles = json.dumps(roles)
         self.password_hash = generate_password_hash(password)
 
     def save(self):
-            db.session.add(self)
-            db.session.commit()
+        db.session.add(self)
+        db.session.commit()
 
     @staticmethod
     def get_all():

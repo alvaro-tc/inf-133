@@ -21,9 +21,10 @@ def create_candy():
     if request.method == "POST":
         marca = request.form["marca"]
         peso = float(request.form["peso"])
-        origen = request.form["origen"]
         sabor = request.form["sabor"]
-        candy = Candy(marca=marca, peso=peso, origen=origen, sabor=sabor)
+        origen = request.form["origen"]
+
+        candy = Candy(marca=marca, peso=peso, sabor=sabor, origen=origen)
         candy.save()
         flash("Dulce creado exitosamente", "success")
         return redirect(url_for("candy.list_candies"))
@@ -40,10 +41,9 @@ def update_candy(id):
     if request.method == "POST":
         marca = request.form["marca"]
         peso = float(request.form["peso"])
-        origen = request.form["origen"]
         sabor = request.form["sabor"]
-
-        candy.update(marca=marca, peso=peso, origen=origen, sabor=sabor)
+        origen = request.form["origen"]
+        candy.update(marca=marca, peso=peso, sabor=sabor, origen=origen)
         flash("Dulce actualizado exitosamente", "success")
         return redirect(url_for("candy.list_candies"))
     return candy_view.update_candy(candy)

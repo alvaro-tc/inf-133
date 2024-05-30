@@ -1,5 +1,4 @@
-def render_candy_list(candies):
-
+def render_candies_list(candies):
     return [
         {
             "id": candy.id,
@@ -13,7 +12,6 @@ def render_candy_list(candies):
 
 
 def render_candy_detail(candy):
-   
     return {
         "id": candy.id,
         "marca": candy.marca,

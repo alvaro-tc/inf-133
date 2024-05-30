@@ -26,7 +26,7 @@ def get_user(id):
 
 
 
-@user_bp.route("/users/register", methods=["POST"])
+@user_bp.route("/users", methods=["POST"])
 @jwt_required
 @roles_required(roles=["admin"])
 def register():
@@ -36,17 +36,13 @@ def register():
     username = data.get("username")
     password = data.get("password")
     roles = data.get("roles")
-
     if not username or not password or not first_name or not last_name:
         return jsonify({"error": "Se requieren primer nombre, apellido, nombre de usuario y contraseña"}), 400
-
     existing_user = User.find_by_username(username)
     if existing_user:
         return jsonify({"error": "El nombre de usuario ya está en uso"}), 400
-
-    new_user = User(username, password, roles)
+    new_user = User(first_name,last_name,username, password, roles)
     new_user.save()
-
     return jsonify({"message": "Usuario creado exitosamente"}), 201
 
 
@@ -66,19 +62,29 @@ def login():
     
     
     
-
 @user_bp.route("/users/<int:id>", methods=["PUT"])
 @jwt_required
 @roles_required(roles=["admin"])
 def update():
-    data = request.json
+    user = User.get_by_id(id)
+    if not user:
+        return "Usuario no encontrado", 404 
+    data = request.json  
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
     username = data.get("username")
-    password = data.get("password")
+    roles = data.get("roles")
     user = User.find_by_username(username)
-    if user and check_password_hash(user.password_hash, password):
-        access_token = create_access_token(
-            identity={"username": username, "roles": user.roles}
-        )
-        return jsonify(access_token=access_token), 200
-    else:
-        return jsonify({"error": "Credenciales inválidas"}), 401
+    user.update(first_name=first_name, last_name=last_name, username=username, roles=roles)
+    return jsonify(render_user_detail(user))
+
+@user_bp.route("/users/<int:id>", methods=["DELETE"])
+@jwt_required
+@roles_required(roles=["admin"])
+def delete():
+    user = User.get_by_id(id)
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+    user.delete()
+    return "", 204
+
